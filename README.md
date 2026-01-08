@@ -1,4 +1,4 @@
-# sawit (saw)
+# saw-it
 
 A simple, lightweight CLI tool that watches for file changes in a directory and executes a specified command.
 
@@ -74,8 +74,8 @@ cargo binstall sawit
 ### From Source
 
 ```bash
-git clone https://github.com/fepfitra/sawit.git
-cd sawit
+git clone https://github.com/fepfitra/saw-it.git
+cd saw-it
 cargo install --path .
 ```
 
