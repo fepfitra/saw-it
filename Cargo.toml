@@ -19,7 +19,7 @@ path = "src/main.rs"
 
 [package.metadata.binstall]
 pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ target }.zip"
-bin-dir = "{ name }-{ target }/{ bin }{ binary-suffix }"
+bin-dir = "{ name }-{ target }"
 pkg-fmt = "zip"
 
 [dependencies]
