@@ -38,21 +38,25 @@ saw --it <PATH> --do <COMMAND>
 ### Examples
 
 Watch the current directory and run `cargo check` on change:
+
 ```bash
 saw --it . --do "cargo check"
 ```
 
 Watch the `src` folder, clear the screen, and run tests with verbose output:
+
 ```bash
 saw --it src -c -v --do "cargo test"
 ```
 
 Watch a specific file and restart the command if it's still running:
+
 ```bash
 saw --it server.py -r --do "python server.py"
 ```
 
 Watch a specific file and run a python script:
+
 ```bash
 saw --it script.py --do "python script.py"
 ```
