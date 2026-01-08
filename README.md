@@ -2,6 +2,14 @@
 
 A simple, lightweight CLI tool written in Rust that watches for file changes in a directory and executes a specified command.
 
+## Philosophy
+
+The name **saw** is the past tense of the verb **see**. The concept is grounded in simple cause and effect:
+
+> "I **saw** a change, so I did something."
+
+This tool acts as a vigilant observer for your workspace. It watches your files, and the moment it *saw* a modification—whether it's a code save, a new file, or a deletion—it immediately triggers your specified action. It bridges the gap between observing an event and automating the response.
+
 ## Features
 
 - **Watch:** Recursively watches a directory or file for changes.
