@@ -8,7 +8,7 @@ The name **saw** is the past tense of the verb **see**. The concept is grounded 
 
 > "I **saw** a change, so I did something."
 
-This tool acts as a vigilant observer for your workspace. It watches your files, and the moment it *saw* a modification—whether it's a code save, a new file, or a deletion—it immediately triggers your specified action. It bridges the gap between observing an event and automating the response.
+This tool acts as a vigilant observer for your workspace. It watches your files, and the moment it *saw* a modification, it immediately triggers your specified action. It bridges the gap between observing an event and automating the response.
 
 ## Features
 
