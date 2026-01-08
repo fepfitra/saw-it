@@ -6,7 +6,7 @@ A simple, lightweight CLI tool that watches for file changes in a directory and 
 
 The name **saw** is the past tense of the verb **see**. The concept is grounded in simple cause and effect:
 
-> "I **saw** a change, so **it needs to be done**."
+> "I **saw** a change, so **it** needs to be done."
 
 This tool acts as a vigilant observer for your workspace. It watches your files, and the moment it *saw* a modification, it immediately triggers your specified action. It bridges the gap between observing an event and automating the response.
 
