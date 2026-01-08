@@ -1,6 +1,6 @@
 [package]
 name = "saw-it"
-version = "0.1.11"
+version = "0.1.12"
 edition = "2024"
 description = "A simple CLI tool to watch files and execute commands"
 license = "MIT"
