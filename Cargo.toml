@@ -10,15 +10,11 @@ categories = ["command-line-utilities", "development-tools"]
 readme = "README.md"
 
 [[bin]]
-name = "sawit"
-path = "src/main.rs"
-
-[[bin]]
 name = "saw"
 path = "src/main.rs"
 
 [package.metadata.binstall]
-pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ target }.zip"
+pkg-url = "{ repo }/releases/download/v{ version }/saw-{ target }.zip"
 pkg-fmt = "zip"
 
 [dependencies]

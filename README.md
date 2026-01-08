@@ -79,4 +79,4 @@ cd saw-it
 cargo install --path .
 ```
 
-This will install the binary `sawit` and the shorthand `saw`.
+This will install the binary `saw`.

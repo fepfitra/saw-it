@@ -50,17 +50,15 @@ jobs:
       shell: bash
       run: |
         TARGET_NAME=${{ matrix.target }}
-        staging="sawit-${TARGET_NAME}"
+        staging="saw-${TARGET_NAME}"
         mkdir -p "$staging"
         
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          cp "target/$TARGET_NAME/release/sawit.exe" "$staging/"
           cp "target/$TARGET_NAME/release/saw.exe" "$staging/"
           # Zip with flat structure (no top-level folder)
           cd "$staging"
           7z a "../$staging.zip" *
         else
-          cp "target/$TARGET_NAME/release/sawit" "$staging/"
           cp "target/$TARGET_NAME/release/saw" "$staging/"
           # Zip with flat structure (no top-level folder)
           cd "$staging"
@@ -73,6 +71,6 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        files: sawit-${{ matrix.target }}.zip
+        files: saw-${{ matrix.target }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
