@@ -253,7 +253,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "sawit"
+name = "saw-it"
 version = "0.1.9"
 dependencies = [
  "clap",

@@ -62,13 +62,13 @@ saw --it script.py --do "python script.py"
 ### From Cargo
 
 ```bash
-cargo install sawit
+cargo install saw-it
 ```
 
 ### From Binstall (Quickest)
 
 ```bash
-cargo binstall sawit
+cargo binstall saw-it
 ```
 
 ### From Source
