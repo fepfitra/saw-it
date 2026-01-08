@@ -18,8 +18,9 @@ name = "saw"
 path = "src/main.rs"
 
 [package.metadata.binstall]
-pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ target }{ archive-suffix }"
-pkg-fmt = "bin"
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ target }.zip"
+bin-dir = "{ name }-{ target }/{ bin }{ binary-suffix }"
+pkg-fmt = "zip"
 
 [dependencies]
 clap = { version = "4.5.54", features = ["derive"] }

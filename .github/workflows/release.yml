@@ -16,19 +16,14 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            bin: sawit
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            bin: sawit
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            bin: sawit.exe
           - os: macos-latest
             target: x86_64-apple-darwin
-            bin: sawit
           - os: macos-latest
             target: aarch64-apple-darwin
-            bin: sawit
 
     steps:
     - name: Checkout repository
@@ -47,22 +42,30 @@ jobs:
         echo "Syncing Cargo.toml to version $VERSION"
         # Portable sed: use -i.bak to satisfy BSD sed (macOS), then remove backup
         sed -i.bak "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml && rm Cargo.toml.bak
-        # No need to commit here, just build with the modified file
 
     - name: Build
       run: cargo build --release --target ${{ matrix.target }}
 
-    - name: Rename and Upload
+    - name: Package and Upload
       shell: bash
       run: |
-        BIN_NAME=${{ matrix.bin }}
         TARGET_NAME=${{ matrix.target }}
-        # Rename binary to include target for binstall to find it
-        cp target/$TARGET_NAME/release/$BIN_NAME ./sawit-$TARGET_NAME${BIN_NAME#sawit}
+        staging="sawit-${TARGET_NAME}"
+        mkdir -p "$staging"
+        
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          cp "target/$TARGET_NAME/release/sawit.exe" "$staging/"
+          cp "target/$TARGET_NAME/release/saw.exe" "$staging/"
+          7z a "$staging.zip" "$staging"
+        else
+          cp "target/$TARGET_NAME/release/sawit" "$staging/"
+          cp "target/$TARGET_NAME/release/saw" "$staging/"
+          zip -r "$staging.zip" "$staging"
+        fi
     
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        files: sawit-${{ matrix.target }}*
+        files: sawit-${{ matrix.target }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
