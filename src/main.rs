@@ -1,4 +1,4 @@
-use clap::{Parser, CommandFactory};
+use clap::{CommandFactory, Parser};
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::path::Path;
 use std::process::Command;
@@ -26,7 +26,7 @@ struct Args {
 
 fn main() -> notify::Result<()> {
     let args = Args::parse();
-    
+
     let (path_str, command_str) = match (args.path, args.command) {
         (Some(p), Some(c)) => (p, c),
         _ => {
@@ -36,10 +36,15 @@ fn main() -> notify::Result<()> {
     };
 
     let raw_path = Path::new(&path_str);
-    let canonical_path = raw_path.canonicalize().unwrap_or_else(|_| raw_path.to_path_buf());
-    
+    let canonical_path = raw_path
+        .canonicalize()
+        .unwrap_or_else(|_| raw_path.to_path_buf());
+
     let (watch_path, target_file) = if canonical_path.is_file() {
-        (canonical_path.parent().unwrap().to_path_buf(), Some(canonical_path.clone()))
+        (
+            canonical_path.parent().unwrap().to_path_buf(),
+            Some(canonical_path.clone()),
+        )
     } else {
         (canonical_path.clone(), None)
     };
@@ -67,22 +72,17 @@ fn main() -> notify::Result<()> {
     if verbose {
         println!("--- Executing (Initial Run): {} ---", command_str);
     }
-    
+
     let initial_cmd = if cfg!(target_os = "windows") {
-        Command::new("cmd")
-            .args(["/C", &command_str])
-            .spawn()
+        Command::new("cmd").args(["/C", &command_str]).spawn()
     } else {
-        Command::new("sh")
-            .arg("-c")
-            .arg(&command_str)
-            .spawn()
+        Command::new("sh").arg("-c").arg(&command_str).spawn()
     };
 
     match initial_cmd {
         Ok(child) => {
             current_child = Some(child);
-        },
+        }
         Err(e) => eprintln!("Failed to start initial command: {}", e),
     }
 
@@ -112,23 +112,32 @@ fn main() -> notify::Result<()> {
         let event_result = if current_child.is_some() {
             rx.recv_timeout(Duration::from_millis(100))
         } else {
-            rx.recv().map_err(|_| std::sync::mpsc::RecvTimeoutError::Disconnected)
+            rx.recv()
+                .map_err(|_| std::sync::mpsc::RecvTimeoutError::Disconnected)
         };
 
         match event_result {
             Ok(Ok(event)) => {
                 if let Some(ref target) = target_file {
-                    let hits_target = event.paths.iter().any(|p| {
-                        p.canonicalize().ok().as_ref() == Some(target) || p == target
-                    });
-                    
+                    let hits_target = event
+                        .paths
+                        .iter()
+                        .any(|p| p.canonicalize().ok().as_ref() == Some(target) || p == target);
+
                     if !hits_target {
                         continue;
                     }
                 }
 
                 use notify::event::ModifyKind;
-                if !matches!(event.kind, EventKind::Modify(ModifyKind::Metadata(_))) {
+                if !matches!(
+                    event.kind,
+                    EventKind::Modify(ModifyKind::Data(_))
+                        | EventKind::Modify(ModifyKind::Any)
+                        | EventKind::Modify(ModifyKind::Metadata(_))
+                        | EventKind::Create(_)
+                        | EventKind::Remove(_)
+                ) {
                     continue;
                 }
 
@@ -141,55 +150,57 @@ fn main() -> notify::Result<()> {
 
                 if let Some(mut child) = current_child.take() {
                     if restart {
-                        if verbose { println!("--- Terminating previous process ---"); }
+                        if verbose {
+                            println!("--- Terminating previous process ---");
+                        }
                         let _ = child.kill();
                         let _ = child.wait();
                     } else {
-                        if verbose { println!("--- Waiting for previous process to finish ---"); }
+                        if verbose {
+                            println!("--- Waiting for previous process to finish ---");
+                        }
                         let status = child.wait();
-                         if verbose {
+                        if verbose {
                             match status {
                                 Ok(s) => {
-                                    if s.success() { println!("--- Success ---"); } 
-                                    else { println!("--- Failed ({}) ---", s); }
-                                },
+                                    if s.success() {
+                                        println!("--- Success ---");
+                                    } else {
+                                        println!("--- Failed ({}) ---", s);
+                                    }
+                                }
                                 Err(e) => println!("Error waiting: {}", e),
                             }
                         }
                     }
                 }
-                
+
                 if clear_screen {
                     print!("\x1B[2J\x1B[1;1H");
                     let _ = std::io::Write::flush(&mut std::io::stdout());
                 }
-                
+
                 if verbose {
                     println!("--- Executing: {} ---", command_str);
                 }
-                
+
                 let cmd_result = if cfg!(target_os = "windows") {
-                    Command::new("cmd")
-                        .args(["/C", &command_str])
-                        .spawn()
+                    Command::new("cmd").args(["/C", &command_str]).spawn()
                 } else {
-                    Command::new("sh")
-                        .arg("-c")
-                        .arg(&command_str)
-                        .spawn()
+                    Command::new("sh").arg("-c").arg(&command_str).spawn()
                 };
 
                 match cmd_result {
                     Ok(child) => {
                         current_child = Some(child);
-                    },
+                    }
                     Err(e) => eprintln!("Failed to start command: {}", e),
                 }
-            },
+            }
             Ok(Err(e)) => println!("Watch error: {:?}", e),
             Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
                 continue;
-            },
+            }
             Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
                 println!("Channel disconnected");
                 break;
