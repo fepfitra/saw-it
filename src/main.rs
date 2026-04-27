@@ -1,9 +1,31 @@
 use clap::{CommandFactory, Parser};
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 use std::sync::mpsc::channel;
 use std::time::Duration;
+
+fn load_gitignore_patterns(watch_path: &Path) -> Vec<String> {
+    let gitignore_path = watch_path.join(".gitignore");
+    if !gitignore_path.exists() {
+        return Vec::new();
+    }
+
+    let content = match fs::read_to_string(&gitignore_path) {
+        Ok(c) => c,
+        Err(_) => return Vec::new(),
+    };
+
+    content
+        .lines()
+        .filter(|line| {
+            let trimmed = line.trim();
+            !trimmed.is_empty() && !trimmed.starts_with('#')
+        })
+        .map(|line| line.trim().to_string())
+        .collect()
+}
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None, override_usage = "saw --it <PATH> --do <COMMAND>")]
@@ -30,8 +52,6 @@ struct Args {
 fn main() -> notify::Result<()> {
     let args = Args::parse();
 
-    let exclude_patterns: Vec<_> = args.exclude.iter().map(|s| s.as_str()).collect();
-
     let (path_str, command_str) = match (args.path, args.command) {
         (Some(p), Some(c)) => (p, c),
         _ => {
@@ -57,6 +77,10 @@ fn main() -> notify::Result<()> {
     let clear_screen = args.clear;
     let verbose = args.verbose;
     let restart = args.restart;
+
+    let gitignore_patterns = load_gitignore_patterns(&watch_path);
+    let mut exclude_patterns: Vec<&str> = gitignore_patterns.iter().map(|s| s.as_str()).collect();
+    exclude_patterns.extend(args.exclude.iter().map(|s| s.as_str()));
 
     if verbose {
         println!("Watching path: {:?}", watch_path);
