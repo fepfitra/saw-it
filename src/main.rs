@@ -22,10 +22,15 @@ struct Args {
 
     #[arg(short = 'r', long = "restart")]
     restart: bool,
+
+    #[arg(short = 'e', long = "exclude", value_delimiter = ' ', num_args = 1..)]
+    exclude: Vec<String>,
 }
 
 fn main() -> notify::Result<()> {
     let args = Args::parse();
+
+    let exclude_patterns: Vec<_> = args.exclude.iter().map(|s| s.as_str()).collect();
 
     let (path_str, command_str) = match (args.path, args.command) {
         (Some(p), Some(c)) => (p, c),
@@ -60,6 +65,9 @@ fn main() -> notify::Result<()> {
         }
         println!("Command to run: '{}'", command_str);
         println!("Restart on change: {}", restart);
+        if !exclude_patterns.is_empty() {
+            println!("Excluding: {:?}", exclude_patterns);
+        }
         println!("Waiting for changes...");
     }
 
@@ -127,6 +135,22 @@ fn main() -> notify::Result<()> {
                     if !hits_target {
                         continue;
                     }
+                }
+
+                let should_exclude = event.paths.iter().any(|p| {
+                    let path_str = p.to_string_lossy();
+                    exclude_patterns.iter().any(|pattern| {
+                        if pattern.ends_with('/') {
+                            path_str.contains(pattern)
+                        } else {
+                            path_str.ends_with(pattern)
+                                || path_str.contains(&format!("/{}/", pattern))
+                        }
+                    })
+                });
+
+                if should_exclude {
+                    continue;
                 }
 
                 use notify::event::ModifyKind;

@@ -32,6 +32,7 @@ saw --it <PATH> --do <COMMAND>
 | `-c` | `--clear` | Clear screen before executing | `false` |
 | `-v` | `--verbose` | Print verbose logs (change info, etc.) | `false` |
 | `-r` | `--restart` | Terminate and restart if still running | `false` |
+| `-e` | `--exclude` | File/folder patterns to exclude (multi-value) | |
 | `-h` | `--help` | Print help information | |
 | `-V` | `--version` | Print version information | |
 
